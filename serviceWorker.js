@@ -1,5 +1,11 @@
-const CACHE_NAME = "savorly-v1.5";
+//INF654G Mobile Web Development
+//Final Project for PWA app
+//Jesse Newberry
+//November 29, 2025
 
+//Cache name
+const CACHE_NAME = "savorly-v1.5";
+//list of assets to cache
 const ASSETS_TO_CACHE = [
   "/",
   "/index.html",
@@ -27,7 +33,7 @@ const ASSETS_TO_CACHE = [
   "/img/icons/savorly-512.png" 
 
 ];
-
+//cache the assets
 self.addEventListener("install", (event) => {
   console.log("Service Worker: Installing...");
   event.waitUntil(
@@ -37,7 +43,7 @@ self.addEventListener("install", (event) => {
     })
   );
 });
-
+//delete the old cache if it exists
 self.addEventListener("activate", (event) => {
   console.log("Service Worker: Activating...");
   event.waitUntil(
