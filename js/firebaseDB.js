@@ -1,4 +1,10 @@
 // firebaseDB.js
+
+//INF654G Mobile Web Development
+//Final Project for PWA app
+//Jesse Newberry
+//November 29, 2025
+
 import { currentUser } from "./auth.js";
 import { db } from "./firebaseConfig.js";
 // Firebase SDKs
@@ -42,7 +48,7 @@ export async function getTasksFromFirebase() {
     }
     const userId = currentUser.uid;
     // const taskRef = collection(doc(db, "users", userId), "tasks");
-    // Having issues and trying to track down a bug with auth not working since implementing 1.5 augmentations.
+    // Having issues and trying to track down a bug with auth not working since implementing 1.5 augmentations. Issue ended up due to the fact that tasks was called as array and not string
     const taskRef = collection(db, "users", userId, "tasks");
     const snapshot = await getDocs(taskRef);
     snapshot.forEach((d) => tasks.push({ id: d.id, ...d.data() }));
