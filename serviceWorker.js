@@ -72,23 +72,59 @@ self.addEventListener("activate", (event) => {
 // });
 
 //Implementing further tests to cache but still get fresh textContent
+
+//Below fixed firefox issue but new issue arose using chrome
+// self.addEventListener("fetch", (event) => {
+//   const url = new URL(event.request.url);
+
+//   // Bypass Firestore
+//   if (url.hostname.includes("firestore.googleapis.com")) {
+//     return event.respondWith(fetch(event.request));
+//   }
+
+//   event.respondWith(
+//     fetch(event.request)
+//       .then((networkResponse) => {
+//         // Update cache with fresh response
+//         return caches.open(CACHE_NAME).then((cache) => {
+//           cache.put(event.request, networkResponse.clone());
+//           return networkResponse;
+//         });
+//       })
+//       .catch(() => caches.match(event.request)) // fallback to cache if offline
+//   );
+// });
+//=========================================================================================
+
+// POST requests bypass the cache entirely which prevents Chrome error.
+
+// Firestore requests still bypass the SW so no Firefox error.
+
+// GET requests for app files are still cached for offline use.
+
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
 
-  // Bypass Firestore
+  // Bypass Firestore requests completely
   if (url.hostname.includes("firestore.googleapis.com")) {
+    return event.respondWith(fetch(event.request));
+  }
+
+  // Only cache GET requests
+  if (event.request.method !== "GET") {
     return event.respondWith(fetch(event.request));
   }
 
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {
-        // Update cache with fresh response
         return caches.open(CACHE_NAME).then((cache) => {
           cache.put(event.request, networkResponse.clone());
           return networkResponse;
         });
       })
-      .catch(() => caches.match(event.request)) // fallback to cache if offline
+      .catch(() => caches.match(event.request))
   );
 });
+
+
