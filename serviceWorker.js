@@ -60,11 +60,35 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+
+// Having issues with this piece working in firefox. 
+// self.addEventListener("fetch", (event) => {
+//   console.log("Service Worker: Fetching...", event.request.url);
+//   event.respondWith(
+//     caches.match(event.request).then((response) => {
+//       return response || fetch(event.request);
+//     })
+//   );
+// });
+
+//Implementing further tests to cache but still get fresh textContent
 self.addEventListener("fetch", (event) => {
-  console.log("Service Worker: Fetching...", event.request.url);
+  const url = new URL(event.request.url);
+
+  // Bypass Firestore
+  if (url.hostname.includes("firestore.googleapis.com")) {
+    return event.respondWith(fetch(event.request));
+  }
+
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
-    })
+    fetch(event.request)
+      .then((networkResponse) => {
+        // Update cache with fresh response
+        return caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, networkResponse.clone());
+          return networkResponse;
+        });
+      })
+      .catch(() => caches.match(event.request)) // fallback to cache if offline
   );
 });
