@@ -23,7 +23,7 @@ import {
 export async function addTaskToFirebase(task) {
   try {
     if(!currentUser){
-      throw new Error("User is not authenticated - add Task");
+      throw new Error("User is not authenticated");
     }
     const userId = currentUser.uid;
     console.log("userID: ", userId);
