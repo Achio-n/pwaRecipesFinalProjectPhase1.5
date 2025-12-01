@@ -102,29 +102,38 @@ self.addEventListener("activate", (event) => {
 
 // GET requests for app files are still cached for offline use.
 
+// self.addEventListener("fetch", (event) => {
+//   const url = new URL(event.request.url);
+
+//   // Bypass Firestore requests completely
+//   if (url.hostname.includes("firestore.googleapis.com")) {
+//     return event.respondWith(fetch(event.request));
+//   }
+
+//   // Only cache GET requests
+//   if (event.request.method !== "GET") {
+//     return event.respondWith(fetch(event.request));
+//   }
+
+//   event.respondWith(
+//     fetch(event.request)
+//       .then((networkResponse) => {
+//         return caches.open(CACHE_NAME).then((cache) => {
+//           cache.put(event.request, networkResponse.clone());
+//           return networkResponse;
+//         });
+//       })
+//       .catch(() => caches.match(event.request))
+//   );
+// });
+
+
+// After chasing this firefox I determined there was no effect on functionality. Rolling back to original
 self.addEventListener("fetch", (event) => {
-  const url = new URL(event.request.url);
-
-  // Bypass Firestore requests completely
-  if (url.hostname.includes("firestore.googleapis.com")) {
-    return event.respondWith(fetch(event.request));
-  }
-
-  // Only cache GET requests
-  if (event.request.method !== "GET") {
-    return event.respondWith(fetch(event.request));
-  }
-
+  console.log("Service Worker: Fetching...", event.request.url);
   event.respondWith(
-    fetch(event.request)
-      .then((networkResponse) => {
-        return caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, networkResponse.clone());
-          return networkResponse;
-        });
-      })
-      .catch(() => caches.match(event.request))
+    caches.match(event.request).then((response) => {
+      return response || fetch(event.request);
+    })
   );
 });
-
-
